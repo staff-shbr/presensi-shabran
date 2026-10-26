@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Presensi Terpadu Pondok Shabran - UMS</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ums: {
+              navy: '#2F3185',
+              yellow: '#FFB800',
+              teal: '#1CBDB3',
+              dark: '#1c1d52'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- PapaParse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-white text-slate-800 font-sans min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-ums-navy border-b-4 border-ums-yellow sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-white/10 rounded-xl text-ums-yellow border border-white/20">
+          <i class="fa-solid fa-mosque fa-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-wide text-white">Dashboard Presensi Mahasantri Terpadu</h1>
+          <p class="text-xs text-slate-200">Pondok Hajjah Nuriyah Shabran Surakarta</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <span class="text-[10px] text-slate-300 block"><i class="fa-solid fa-ban text-rose-400 mr-1"></i>Auto-Sync: Non-aktif</span>
+          <span id="last-update" class="text-xs text-slate-100 bg-ums-dark/60 px-3 py-1 rounded-full border border-white/10 inline-block mt-0.5">
+            <i class="fa-solid fa-spinner fa-spin mr-1 text-ums-yellow"></i> Memuat data...
+          </span>
+        </div>
+        <button onclick="loadDashboardData()" class="bg-ums-yellow hover:bg-amber-400 text-ums-navy font-bold text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow">
+          <i class="fa-solid fa-rotate-right"></i> Refresh Manual
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-slate-50/50">
+
+    <!-- Ringkasan Jumlah Mahasantri -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Mahasantri</p>
+            <h3 id="stat-total" class="text-2xl font-extrabold mt-1 text-ums-navy">-</h3>
+          </div>
+          <div class="p-2 bg-ums-navy/10 rounded-lg text-ums-navy">
+            <i class="fa-solid fa-users fa-md"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Putra / Putri</p>
+            <h3 class="text-xl font-extrabold mt-1 text-slate-700">
+              <span id="stat-putra" class="text-sky-600">-</span> / <span id="stat-putri" class="text-pink-600">-</span>
+            </h3>
+          </div>
+          <div class="p-2 bg-sky-50 rounded-lg text-sky-600">
+            <i class="fa-solid fa-venus-mars fa-md"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grafik Distribusi Mahasantri per Angkatan & Gender -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <h2 class="text-base font-bold text-ums-navy mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-chart-simple text-amber-500"></i> Distribusi Mahasantri per Angkatan & Program
+      </h2>
+      <div class="h-64">
+        <canvas id="angkatanChart"></canvas>
+      </div>
+    </div>
+
+    <!-- SEKSI 1: EVALUASI SUBUH JAMAAH (PUTRA NON-2026) -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <i class="fa-solid fa-clipboard-check text-ums-navy text-lg"></i>
+        <h2 class="text-base font-bold text-ums-navy">Evaluasi Subuh Jamaah (Khusus Putra Senior / Non-2026)</h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 10 Terbaik Putra Non-2026 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-100 bg-teal-50/50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-teal-800 flex items-center gap-2">
+              <i class="fa-solid fa-award text-teal-600 text-base"></i> 10 Terbaik Subuh (Putra Non-2026)
+            </h3>
+            <span class="text-[10px] bg-teal-100 text-teal-700 font-semibold px-2 py-0.5 rounded-full">Top Performer</span>
+          </div>
+          <div class="divide-y divide-slate-100 text-xs" id="top-10-subuh-putra">
+            <div class="p-4 text-center text-slate-400">Memuat data...</div>
+          </div>
+        </div>
+
+        <!-- 10 Terburuk Putra Non-2026 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-rose-800 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base"></i> 10 Terendah Subuh (Putra Non-2026)
+            </h3>
+            <span class="text-[10px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full">Perlu Evaluasi</span>
+          </div>
+          <div class="divide-y divide-slate-100 text-xs" id="bottom-10-subuh-putra">
+            <div class="p-4 text-center text-slate-400">Memuat data...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEKSI 2: PERINGKAT TOTAL KEHADIRAN PUTRA (KHUSUS NON-2026 - SEMUA KEGIATAN) -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-mars text-sky-600 text-lg"></i>
+          <h2 class="text-base font-bold text-ums-navy">Peringkat Presensi Putra (Khusus Non-2026)</h2>
+        </div>
+        <span class="text-xs font-semibold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-full">Akumulasi Semua Kegiatan</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Paling Rajin Putra -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-100 bg-sky-50/50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-sky-800 flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-sky-600 text-base"></i> 10 Paling Rajin (Putra)
+            </h3>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-semibold px-2 py-0.5 rounded-full">Top Total Kehadiran</span>
+          </div>
+          <div class="divide-y divide-slate-100 text-xs" id="rajin-putra-list">
+            <div class="p-4 text-center text-slate-400">Memuat data...</div>
+          </div>
+        </div>
+
+        <!-- Paling Malas Putra -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-100 bg-amber-50/50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-amber-800 flex items-center gap-2">
+              <i class="fa-solid fa-circle-exclamation text-amber-600 text-base"></i> 10 Paling Malas (Putra)
+            </h3>
+            <span class="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">Evaluasi Total Kehadiran</span>
+          </div>
+          <div class="divide-y divide-slate-100 text-xs" id="malas-putra-list">
+            <div class="p-4 text-center text-slate-400">Memuat data...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEKSI 3: PERINGKAT TOTAL KEHADIRAN PUTRI (KHUSUS NON-2026 - SEMUA KEGIATAN) -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-venus text-pink-600 text-lg"></i>
+          <h2 class="text-base font-bold text-ums-navy">Peringkat Presensi Putri (Khusus Non-2026)</h2>
+        </div>
+        <span class="text-xs font-semibold text-pink-700 bg-pink-50 border border-pink-200 px-2.5 py-0.5 rounded-full">Akumulasi Semua Kegiatan</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Paling Rajin Putri -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-100 bg-pink-50/50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-pink-800 flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-pink-600 text-base"></i> 10 Paling Rajin (Putri)
+            </h3>
+            <span class="text-[10px] bg-pink-100 text-pink-700 font-semibold px-2 py-0.5 rounded-full">Top Total Kehadiran</span>
+          </div>
+          <div class="divide-y divide-slate-100 text-xs" id="rajin-putri-list">
+            <div class="p-4 text-center text-slate-400">Memuat data...</div>
+          </div>
+        </div>
+
+        <!-- Paling Malas Putri -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-rose-800 flex items-center gap-2">
+              <i class="fa-solid fa-circle-exclamation text-rose-600 text-base"></i> 10 Paling Malas (Putri)
+            </h3>
+            <span class="text-[10px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full">Evaluasi Total Kehadiran</span>
+          </div>
+          <div class="divide-y divide-slate-100 text-xs" id="malas-putri-list">
+            <div class="p-4 text-center text-slate-400">Memuat data...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Data Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+        <h2 class="text-base font-bold text-ums-navy flex items-center gap-2">
+          <i class="fa-solid fa-table-list text-ums-navy"></i> Data Master & Rekap Presensi Mahasantri
+        </h2>
+        <div class="relative w-full sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" id="search-input" onkeyup="filterTable()" placeholder="Cari data mahasantri..." 
+            class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-ums-navy focus:ring-1 focus:ring-ums-navy">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-700">
+          <thead class="bg-ums-navy text-white uppercase font-semibold text-[11px] tracking-wider">
+            <tr id="table-head-tr">
+              <th class="px-4 py-3.5">Memuat Kolom...</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-4 py-8 text-center text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin mr-2 text-ums-navy"></i> Mengambil data mahasantri...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const SHEET_ID = '1kuqbpeYXGQPqEYMXcZDjJbB1LAKf9jMypuw2AiAiVGU';
+    let datamasRaw = [];
+    let angkatanChartInstance = null;
+
+    function fetchCSV(sheetName, hasHeader = true) {
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+      return new Promise((resolve, reject) => {
+        Papa.parse(url, {
+          download: true,
+          header: hasHeader,
+          skipEmptyLines: true,
+          complete: (results) => resolve(results.data),
+          error: (err) => reject(err)
+        });
+      });
+    }
+
+    async function loadDashboardData() {
+      const updateEl = document.getElementById('last-update');
+      updateEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1 text-ums-yellow"></i> Memperbarui...`;
+
+      try {
+        const parsedDatamas = await fetchCSV('DATAMAS', true);
+        datamasRaw = parsedDatamas.filter(row => row['NIM'] && row['NAMA MAHASANTRI']);
+
+        updateKPIs(datamasRaw);
+        renderRankings(datamasRaw);
+        renderTable(datamasRaw);
+        renderAngkatanChart(datamasRaw);
+
+        const now = new Date();
+        updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleTimeString('id-ID')} WIB`;
+      } catch (err) {
+        console.error("Gagal memuat data:", err);
+        updateEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-300 mr-1"></i> Akses Terblokir`;
+      }
+    }
+
+    function updateKPIs(data) {
+      const total = data.length;
+      const putraCount = data.filter(d => (d['AL JINSU'] || '').toLowerCase().includes('putra')).length;
+      const putriCount = data.filter(d => (d['AL JINSU'] || '').toLowerCase().includes('putri')).length;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-putra').innerText = putraCount;
+      document.getElementById('stat-putri').innerText = putriCount;
+    }
+
+    // Perhitungan total akumulasi presisi menggunakan daftar putih kolom kegiatan resmi
+    function getTotalAttendance(row) {
+      const activityColumns = [
+        'SUBUH JAMAAH',
+        'TAHAJJUD SENIN',
+        'TAHAJJUD SELASA',
+        'TAHAJJUD KAMIS',
+        'TAHAJJUD JUMUAH',
+        "EVALUASI PEKANAN I'DAD",
+        'EVALUASI PEKANAN S1',
+        'KAJIAN MASJID SYARIF'
+      ];
+
+      let total = 0;
+      Object.keys(row).forEach(key => {
+        const cleanKey = key.trim().toUpperCase();
+        const isActivity = activityColumns.some(act => act.toUpperCase() === cleanKey);
+        if (isActivity) {
+          const val = parseInt(row[key]) || 0;
+          total += val;
+        }
+      });
+      return total;
+    }
+
+    function renderRankings(data) {
+      const getSubuh = row => parseInt(row['SUBUH JAMAAH']) || 0;
+      const getTotal = row => getTotalAttendance(row);
+      const getNIM = row => (row['NIM'] || '').toString();
+      const getGender = row => (row['AL JINSU'] || '').toLowerCase();
+      const getAngkatan = row => (row['ANGKATAN'] || '').toString();
+
+      // Filter mahasantri selain angkatan 2026
+      const putraNon2026 = data.filter(d => getGender(d).includes('putra') && !getAngkatan(d).includes('2026'));
+      const putriNon2026 = data.filter(d => getGender(d).includes('putri') && !getAngkatan(d).includes('2026'));
+
+      // Sort helpers khusus Subuh Jamaah (Tie-breaker NIM terkecil)
+      const sortSubuhDesc = (arr) => [...arr].sort((a, b) => {
+        const diff = getSubuh(b) - getSubuh(a);
+        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+      }).slice(0, 10);
+
+      const sortSubuhAsc = (arr) => [...arr].sort((a, b) => {
+        const diff = getSubuh(a) - getSubuh(b);
+        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+      }).slice(0, 10);
+
+      // Sort helpers akumulasi TOTAL kehadiran semua kegiatan (Tie-breaker NIM terkecil)
+      const sortTotalDesc = (arr) => [...arr].sort((a, b) => {
+        const diff = getTotal(b) - getTotal(a);
+        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+      }).slice(0, 10);
+
+      const sortTotalAsc = (arr) => [...arr].sort((a, b) => {
+        const diff = getTotal(a) - getTotal(b);
+        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+      }).slice(0, 10);
+
+      // 1. Seksi Subuh Jamaah Putra Non-2026
+      const topSubuhPutra = sortSubuhDesc(putraNon2026);
+      const bottomSubuhPutra = sortSubuhAsc(putraNon2026);
+
+      // 2. Akumulasi Total Kehadiran Putra Non-2026
+      const rajinPutra = sortTotalDesc(putraNon2026);
+      const malasPutra = sortTotalAsc(putraNon2026);
+
+      // 3. Akumulasi Total Kehadiran Putri Non-2026
+      const rajinPutri = sortTotalDesc(putriNon2026);
+      const malasPutri = sortTotalAsc(putriNon2026);
+
+      // Helper Render HTML List
+      const renderList = (containerId, items, getValueFn, badgeColorClass, textColorClass) => {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        if (items.length === 0) {
+          container.innerHTML = `<div class="p-4 text-center text-slate-400">Tidak ada data</div>`;
+          return;
+        }
+        items.forEach((item, index) => {
+          const val = getValueFn(item);
+
+          container.innerHTML += `
+            <div class="p-3 flex justify-between items-center hover:bg-slate-50">
+              <div class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded-full ${index < 3 ? 'bg-amber-100 text-amber-700 font-bold' : 'bg-slate-100 text-slate-500'} flex items-center justify-center text-[11px]">
+                  ${index + 1}
+                </span>
+                <div>
+                  <p class="font-medium text-slate-800">${item['NAMA MAHASANTRI'] || '-'}</p>
+                  <p class="text-[10px] text-slate-400 font-mono">${item['NIM'] || '-'} • ${item['ANGKATAN'] || '-'}</p>
+                </div>
+              </div>
+              <span class="font-bold ${textColorClass} ${badgeColorClass} px-2.5 py-1 rounded-md border text-[11px]">${val} Kehadiran</span>
+            </div>`;
+        });
+      };
+
+      // Output Render Seksi Subuh Jamaah Khusus Putra
+      renderList('top-10-subuh-putra', topSubuhPutra, getSubuh, 'bg-teal-50 border-teal-100', 'text-teal-600');
+      renderList('bottom-10-subuh-putra', bottomSubuhPutra, getSubuh, 'bg-rose-50 border-rose-100', 'text-rose-600');
+      
+      // Output Render Paling Rajin & Malas Putra (Total Semua Kegiatan)
+      renderList('rajin-putra-list', rajinPutra, getTotal, 'bg-sky-50 border-sky-100', 'text-sky-600');
+      renderList('malas-putra-list', malasPutra, getTotal, 'bg-amber-50 border-amber-100', 'text-amber-600');
+
+      // Output Render Paling Rajin & Malas Putri (Total Semua Kegiatan)
+      renderList('rajin-putri-list', rajinPutri, getTotal, 'bg-pink-50 border-pink-100', 'text-pink-600');
+      renderList('malas-putri-list', malasPutri, getTotal, 'bg-rose-50 border-rose-100', 'text-rose-600');
+    }
+
+    function renderTable(data) {
+      const theadTr = document.getElementById('table-head-tr');
+      const tbody = document.getElementById('table-body');
+      
+      theadTr.innerHTML = '';
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="100%" class="px-4 py-4 text-center text-slate-400">Tidak ada data ditemukan</td></tr>`;
+        return;
+      }
+
+      const allKeys = Object.keys(data[0]);
+
+      allKeys.forEach(key => {
+        const th = document.createElement('th');
+        th.className = 'px-4 py-3.5';
+        th.innerText = key;
+        theadTr.appendChild(th);
+      });
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+        
+        allKeys.forEach(key => {
+          const td = document.createElement('td');
+          td.className = 'px-4 py-2.5';
+          const val = row[key] || '0';
+          const upperKey = key.toUpperCase();
+
+          if (upperKey.includes('JINSU') || upperKey.includes('GENDER')) {
+            const isPutra = val.toLowerCase().includes('putra');
+            td.innerHTML = `
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isPutra ? 'bg-sky-50 text-sky-700 border border-sky-200' : 'bg-pink-50 text-pink-700 border border-pink-200'}">
+                ${val}
+              </span>`;
+          } else if (upperKey === 'NIM') {
+            td.className += ' font-mono text-slate-500';
+            td.innerText = val;
+          } else if (upperKey.includes('NAMA')) {
+            td.className += ' font-medium text-slate-900';
+            td.innerText = val;
+          } else if (upperKey.includes('TAHAJJUD') || upperKey.includes('SUBUH') || upperKey.includes('KAJIAN') || upperKey.includes('EVALUASI')) {
+            td.className += ' text-center font-bold text-ums-navy';
+            td.innerText = val;
+          } else {
+            td.className += ' text-slate-600';
+            td.innerText = val;
+          }
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTable() {
+      const keyword = document.getElementById('search-input').value.toLowerCase();
+      const filtered = datamasRaw.filter(row => {
+        return Object.values(row).some(val => 
+          String(val).toLowerCase().includes(keyword)
+        );
+      });
+      renderTable(filtered);
+    }
+
+    // Grafik Distribusi Angkatan memisahkan Putra & Putri
+    function renderAngkatanChart(data) {
+      const angkatanData = {};
+
+      data.forEach(d => {
+        const angkatan = (d['ANGKATAN'] || 'Lainnya').toString().trim();
+        const gender = (d['AL JINSU'] || '').toLowerCase();
+        const isPutra = gender.includes('putra');
+
+        if (!angkatanData[angkatan]) {
+          angkatanData[angkatan] = { putra: 0, putri: 0 };
+        }
+
+        if (isPutra) {
+          angkatanData[angkatan].putra += 1;
+        } else {
+          angkatanData[angkatan].putri += 1;
+        }
+      });
+
+      const labels = Object.keys(angkatanData).sort();
+      const putraValues = labels.map(l => angkatanData[l].putra);
+      const putriValues = labels.map(l => angkatanData[l].putri);
+
+      const ctx = document.getElementById('angkatanChart').getContext('2d');
+      if (angkatanChartInstance) angkatanChartInstance.destroy();
+
+      angkatanChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Putra',
+              data: putraValues,
+              backgroundColor: '#2F3185',
+              borderRadius: 6
+            },
+            {
+              label: 'Putri',
+              data: putriValues,
+              backgroundColor: '#ec4899',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: { boxWidth: 12, font: { size: 11 } }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#64748b' } },
+            y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', precision: 0 } }
+          }
+        }
+      });
+    }
+
+    // Muat data manual saat halaman dibuka
+    loadDashboardData();
+  </script>
+</body>
+</html>
