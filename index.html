@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Presensi Terpadu Pondok Shabran - UMS</title>
+  <title>Dashboard Presensi Terpadu Pondok Shabran - UMS | ver 1.0</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -39,19 +39,19 @@
           <i class="fa-solid fa-mosque fa-xl"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold tracking-wide text-white">Dashboard Presensi Mahasantri Terpadu</h1>
-          <p class="text-xs text-slate-200">Pondok Hajjah Nuriyah Shabran Surakarta</p>
+          <h1 class="text-xl font-bold tracking-wide text-white">Pondok Hajjah Nuriyah Shabran - UMS</h1>
+          <p class="text-xs text-slate-400">Dashboard Presensi Mahasantri 2026/2027</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <div class="text-right hidden sm:block">
-          <span class="text-[10px] text-slate-300 block"><i class="fa-solid fa-ban text-rose-400 mr-1"></i>Auto-Sync: Non-aktif</span>
+        <!--  <span class="text-[10px] text-emerald-300 block"><i class="fa-solid fa-rotate mr-1"></i>Auto-Sync: Aktif (5 Menit)</span> -->
           <span id="last-update" class="text-xs text-slate-100 bg-ums-dark/60 px-3 py-1 rounded-full border border-white/10 inline-block mt-0.5">
             <i class="fa-solid fa-spinner fa-spin mr-1 text-ums-yellow"></i> Memuat data...
           </span>
         </div>
         <button onclick="loadDashboardData()" class="bg-ums-yellow hover:bg-amber-400 text-ums-navy font-bold text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow">
-          <i class="fa-solid fa-rotate-right"></i> Refresh Manual
+          <i class="fa-solid fa-rotate-right"></i> Refresh Sekarang
         </button>
       </div>
     </div>
@@ -65,7 +65,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex justify-between items-start">
           <div>
-            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Mahasantri</p>
+            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Mahasantri I'dad & S1</p>
             <h3 id="stat-total" class="text-2xl font-extrabold mt-1 text-ums-navy">-</h3>
           </div>
           <div class="p-2 bg-ums-navy/10 rounded-lg text-ums-navy">
@@ -92,141 +92,115 @@
     <!-- Grafik Distribusi Mahasantri per Angkatan & Gender -->
     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
       <h2 class="text-base font-bold text-ums-navy mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-chart-simple text-amber-500"></i> Distribusi Mahasantri per Angkatan & Program
+        <i class="fa-solid fa-chart-simple text-amber-500"></i> Mahasantri per Angkatan
       </h2>
       <div class="h-64">
         <canvas id="angkatanChart"></canvas>
       </div>
     </div>
 
-    <!-- SEKSI 1: EVALUASI SUBUH JAMAAH (PUTRA NON-2026) -->
-    <div class="space-y-3">
-      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-        <i class="fa-solid fa-clipboard-check text-ums-navy text-lg"></i>
-        <h2 class="text-base font-bold text-ums-navy">Evaluasi Subuh Jamaah (Khusus Putra Senior / Non-2026)</h2>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- 10 Terbaik Putra Non-2026 -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 bg-teal-50/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-teal-800 flex items-center gap-2">
-              <i class="fa-solid fa-award text-teal-600 text-base"></i> 10 Terbaik Subuh (Putra Non-2026)
-            </h3>
-            <span class="text-[10px] bg-teal-100 text-teal-700 font-semibold px-2 py-0.5 rounded-full">Top Performer</span>
-          </div>
-          <div class="divide-y divide-slate-100 text-xs" id="top-10-subuh-putra">
-            <div class="p-4 text-center text-slate-400">Memuat data...</div>
-          </div>
-        </div>
-
-        <!-- 10 Terburuk Putra Non-2026 -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-rose-800 flex items-center gap-2">
-              <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base"></i> 10 Terendah Subuh (Putra Non-2026)
-            </h3>
-            <span class="text-[10px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full">Perlu Evaluasi</span>
-          </div>
-          <div class="divide-y divide-slate-100 text-xs" id="bottom-10-subuh-putra">
-            <div class="p-4 text-center text-slate-400">Memuat data...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEKSI 2: PERINGKAT TOTAL KEHADIRAN PUTRA (KHUSUS NON-2026 - SEMUA KEGIATAN) -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+    <!-- SEKSI PERINGKAT DENGAN MENU DROPDOWN -->
+    <div class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div class="flex items-center gap-2">
-          <i class="fa-solid fa-mars text-sky-600 text-lg"></i>
-          <h2 class="text-base font-bold text-ums-navy">Peringkat Presensi Putra (Khusus Non-2026)</h2>
+          <i class="fa-solid fa-trophy text-ums-yellow text-xl"></i>
+          <h2 class="text-base font-bold text-ums-navy">Peringkat Presensi Mahasantri</h2>
         </div>
-        <span class="text-xs font-semibold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-full">Akumulasi Semua Kegiatan</span>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Paling Rajin Putra -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 bg-sky-50/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-sky-800 flex items-center gap-2">
-              <i class="fa-solid fa-circle-check text-sky-600 text-base"></i> 10 Paling Rajin (Putra)
-            </h3>
-            <span class="text-[10px] bg-sky-100 text-sky-700 font-semibold px-2 py-0.5 rounded-full">Top Total Kehadiran</span>
-          </div>
-          <div class="divide-y divide-slate-100 text-xs" id="rajin-putra-list">
-            <div class="p-4 text-center text-slate-400">Memuat data...</div>
-          </div>
-        </div>
-
-        <!-- Paling Malas Putra -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 bg-amber-50/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-amber-800 flex items-center gap-2">
-              <i class="fa-solid fa-circle-exclamation text-amber-600 text-base"></i> 10 Paling Malas (Putra)
-            </h3>
-            <span class="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">Evaluasi Total Kehadiran</span>
-          </div>
-          <div class="divide-y divide-slate-100 text-xs" id="malas-putra-list">
-            <div class="p-4 text-center text-slate-400">Memuat data...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEKSI 3: PERINGKAT TOTAL KEHADIRAN PUTRI (KHUSUS NON-2026 - SEMUA KEGIATAN) -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        
+        <!-- Menu Dropdown Pilihan Peringkat -->
         <div class="flex items-center gap-2">
-          <i class="fa-solid fa-venus text-pink-600 text-lg"></i>
-          <h2 class="text-base font-bold text-ums-navy">Peringkat Presensi Putri (Khusus Non-2026)</h2>
+          <label for="ranking-dropdown" class="text-xs font-semibold text-slate-600 shrink-0">Kategori Peringkat:</label>
+          <select id="ranking-dropdown" onchange="renderRankings()" class="bg-white border border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2 font-bold focus:ring-ums-navy focus:border-ums-navy shadow-sm">
+            <option value="SUBUH_PUTRA">Subuh Jama'ah (Putra S1)</option>
+            <option value="TOTAL_PUTRA">Total Presensi Semua Kegiatan (Putra S1)</option>
+            <option value="TOTAL_PUTRI">Total Presensi Semua Kegiatan (Putri S1)</option>
+          </select>
         </div>
-        <span class="text-xs font-semibold text-pink-700 bg-pink-50 border border-pink-200 px-2.5 py-0.5 rounded-full">Akumulasi Semua Kegiatan</span>
       </div>
 
+      <!-- Container Peringkat Dinamis -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Paling Rajin Putri -->
+        <!-- Kartu Peringkat Atas/Rajin -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 bg-pink-50/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-pink-800 flex items-center gap-2">
-              <i class="fa-solid fa-circle-check text-pink-600 text-base"></i> 10 Paling Rajin (Putri)
+          <div id="top-card-header" class="p-4 border-b border-slate-100 bg-teal-50/50 flex justify-between items-center">
+            <h3 id="top-card-title" class="text-sm font-bold text-teal-800 flex items-center gap-2">
+              <i class="fa-solid fa-award text-teal-600 text-base"></i> 10 Terbaik
             </h3>
-            <span class="text-[10px] bg-pink-100 text-pink-700 font-semibold px-2 py-0.5 rounded-full">Top Total Kehadiran</span>
+            <span id="top-card-badge" class="text-[12px] bg-teal-100 text-teal-700 font-semibold px-2 py-0.5 rounded-full"><i>Alhamdulillaah..</i></span>
           </div>
-          <div class="divide-y divide-slate-100 text-xs" id="rajin-putri-list">
+          <div class="divide-y divide-slate-100 text-xs" id="top-ranking-list">
             <div class="p-4 text-center text-slate-400">Memuat data...</div>
           </div>
         </div>
 
-        <!-- Paling Malas Putri -->
+        <!-- Kartu Peringkat Bawah/Mengevaluasi -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-rose-800 flex items-center gap-2">
-              <i class="fa-solid fa-circle-exclamation text-rose-600 text-base"></i> 10 Paling Malas (Putri)
+          <div id="bottom-card-header" class="p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center">
+            <h3 id="bottom-card-title" class="text-sm font-bold text-rose-800 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base"></i> 10 Terendah
             </h3>
-            <span class="text-[10px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full">Evaluasi Total Kehadiran</span>
+            <span id="bottom-card-badge" class="text-[12px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full"><i>Innaalillaah..</i></span>
           </div>
-          <div class="divide-y divide-slate-100 text-xs" id="malas-putri-list">
+          <div class="divide-y divide-slate-100 text-xs" id="bottom-ranking-list">
             <div class="p-4 text-center text-slate-400">Memuat data...</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Master Data Table -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Master Data Table dengan Fitur Login Proteksi -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden relative" id="master-table-section">
+      
+      <!-- Table Header & Controls -->
       <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
-        <h2 class="text-base font-bold text-ums-navy flex items-center gap-2">
-          <i class="fa-solid fa-table-list text-ums-navy"></i> Data Master & Rekap Presensi Mahasantri
-        </h2>
-        <div class="relative w-full sm:w-64">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input type="text" id="search-input" onkeyup="filterTable()" placeholder="Cari data mahasantri..." 
-            class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-ums-navy focus:ring-1 focus:ring-ums-navy">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-table-list text-ums-navy"></i>
+          <h2 class="text-base font-bold text-ums-navy">Data Rekap Presensi Mahasantri</h2>
+        </div>
+        
+        <!-- Controls area (Search & Status/Logout) -->
+        <div class="flex items-center gap-3 w-full sm:w-auto" id="table-controls" style="display: none;">
+          <div class="relative w-full sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="search-input" onkeyup="filterTable()" placeholder="Cari data mahasantri..." 
+              class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-ums-navy focus:ring-1 focus:ring-ums-navy">
+          </div>
+          <button onclick="handleLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-right-from-bracket"></i> Keluar | Logout
+          </button>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
+      <!-- Locked Overlay / Login Form -->
+      <div id="login-overlay" class="p-8 sm:p-12 text-center bg-white flex flex-col items-center justify-center space-y-4">
+        <div class="p-4 bg-ums-navy/10 rounded-full text-ums-navy mb-1">
+          <i class="fa-solid fa-lock fa-2xl"></i>
+        </div>
+        <div class="max-w-md">
+          <h3 class="text-lg font-bold text-slate-800">Akses Terkunci</h3>
+          <p class="text-xs text-slate-500 mt-1">Silakan masuk dengan akun pengelola untuk melihat seluruh tabel Data Rekap Presensi Mahasantri.</p>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="w-full max-w-xs space-y-3 mt-2">
+          <div class="text-left">
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Username</label>
+            <input type="text" id="login-username" required placeholder="Masukkan username" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-ums-navy focus:border-ums-navy focus:bg-white">
+          </div>
+          <div class="text-left">
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Password</label>
+            <input type="password" id="login-password" required placeholder="Masukkan password" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-ums-navy focus:border-ums-navy focus:bg-white">
+          </div>
+          <div id="login-error" class="text-rose-500 text-[11px] hidden font-semibold">Maaf, Username atau Password yang Anda input salah!</div>
+          <button type="submit" class="w-full bg-ums-navy hover:bg-ums-dark text-white font-bold text-xs py-2.5 rounded-lg shadow transition-colors flex items-center justify-center gap-2">
+            <i class="fa-solid fa-key"></i> Masuk untuk Melihat Data
+          </button>
+        </form>
+      </div>
+
+      <!-- Table Container (Akan Ditampilkan Setelah Login) -->
+      <div id="table-container" class="overflow-x-auto" style="display: none;">
         <table class="w-full text-left text-xs text-slate-700">
           <thead class="bg-ums-navy text-white uppercase font-semibold text-[11px] tracking-wider">
             <tr id="table-head-tr">
@@ -242,6 +216,7 @@
           </tbody>
         </table>
       </div>
+
     </div>
 
   </main>
@@ -250,6 +225,7 @@
     const SHEET_ID = '1kuqbpeYXGQPqEYMXcZDjJbB1LAKf9jMypuw2AiAiVGU';
     let datamasRaw = [];
     let angkatanChartInstance = null;
+    let isLoggedIn = false;
 
     function fetchCSV(sheetName, hasHeader = true) {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
@@ -273,9 +249,12 @@
         datamasRaw = parsedDatamas.filter(row => row['NIM'] && row['NAMA MAHASANTRI']);
 
         updateKPIs(datamasRaw);
-        renderRankings(datamasRaw);
-        renderTable(datamasRaw);
+        renderRankings();
         renderAngkatanChart(datamasRaw);
+        
+        if (isLoggedIn) {
+          renderTable(datamasRaw);
+        }
 
         const now = new Date();
         updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleTimeString('id-ID')} WIB`;
@@ -320,7 +299,11 @@
       return total;
     }
 
-    function renderRankings(data) {
+    // Render Peringkat berdasarkan Pilihan Dropdown
+    function renderRankings() {
+      if (!datamasRaw || datamasRaw.length === 0) return;
+
+      const category = document.getElementById('ranking-dropdown').value;
       const getSubuh = row => parseInt(row['SUBUH JAMAAH']) || 0;
       const getTotal = row => getTotalAttendance(row);
       const getNIM = row => (row['NIM'] || '').toString();
@@ -328,45 +311,88 @@
       const getAngkatan = row => (row['ANGKATAN'] || '').toString();
 
       // Filter mahasantri selain angkatan 2026
-      const putraNon2026 = data.filter(d => getGender(d).includes('putra') && !getAngkatan(d).includes('2026'));
-      const putriNon2026 = data.filter(d => getGender(d).includes('putri') && !getAngkatan(d).includes('2026'));
+      const putraNon2026 = datamasRaw.filter(d => getGender(d).includes('putra') && !getAngkatan(d).includes('2026'));
+      const putriNon2026 = datamasRaw.filter(d => getGender(d).includes('putri') && !getAngkatan(d).includes('2026'));
 
-      // Sort helpers khusus Subuh Jamaah (Tie-breaker NIM terkecil)
-      const sortSubuhDesc = (arr) => [...arr].sort((a, b) => {
-        const diff = getSubuh(b) - getSubuh(a);
-        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
-      }).slice(0, 10);
+      let topList = [];
+      let bottomList = [];
+      let getValueFn = getSubuh;
+      
+      // Konfigurasi Header & Style Kartu Peringkat
+      const topHeader = document.getElementById('top-card-header');
+      const topTitle = document.getElementById('top-card-title');
+      const topBadge = document.getElementById('top-card-badge');
 
-      const sortSubuhAsc = (arr) => [...arr].sort((a, b) => {
-        const diff = getSubuh(a) - getSubuh(b);
-        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
-      }).slice(0, 10);
+      const bottomHeader = document.getElementById('bottom-card-header');
+      const bottomTitle = document.getElementById('bottom-card-title');
+      const bottomBadge = document.getElementById('bottom-card-badge');
 
-      // Sort helpers akumulasi TOTAL kehadiran semua kegiatan (Tie-breaker NIM terkecil)
-      const sortTotalDesc = (arr) => [...arr].sort((a, b) => {
-        const diff = getTotal(b) - getTotal(a);
-        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
-      }).slice(0, 10);
+      if (category === 'SUBUH_PUTRA') {
+        getValueFn = getSubuh;
+        
+        topTitle.innerHTML = `<i class="fa-solid fa-award text-teal-600 text-base"></i> 10 Teraktif Subuh (Putra S1)`;
+        topBadge.className = 'text-[10px] bg-teal-100 text-teal-700 font-semibold px-2 py-0.5 rounded-full';
+        topHeader.className = 'p-4 border-b border-slate-100 bg-teal-50/50 flex justify-between items-center';
 
-      const sortTotalAsc = (arr) => [...arr].sort((a, b) => {
-        const diff = getTotal(a) - getTotal(b);
-        return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
-      }).slice(0, 10);
+        bottomTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-500 text-base"></i> 10 Terendah Subuh (Putra S1)`;
+        bottomBadge.className = 'text-[10px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full';
+        bottomHeader.className = 'p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center';
 
-      // 1. Seksi Subuh Jamaah Putra Non-2026
-      const topSubuhPutra = sortSubuhDesc(putraNon2026);
-      const bottomSubuhPutra = sortSubuhAsc(putraNon2026);
+        topList = [...putraNon2026].sort((a, b) => {
+          const diff = getSubuh(b) - getSubuh(a);
+          return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+        }).slice(0, 10);
 
-      // 2. Akumulasi Total Kehadiran Putra Non-2026
-      const rajinPutra = sortTotalDesc(putraNon2026);
-      const malasPutra = sortTotalAsc(putraNon2026);
+        bottomList = [...putraNon2026].sort((a, b) => {
+          const diff = getSubuh(a) - getSubuh(b);
+          return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+        }).slice(0, 10);
 
-      // 3. Akumulasi Total Kehadiran Putri Non-2026
-      const rajinPutri = sortTotalDesc(putriNon2026);
-      const malasPutri = sortTotalAsc(putriNon2026);
+      } else if (category === 'TOTAL_PUTRA') {
+        getValueFn = getTotal;
 
-      // Helper Render HTML List
-      const renderList = (containerId, items, getValueFn, badgeColorClass, textColorClass) => {
+        topTitle.innerHTML = `<i class="fa-solid fa-circle-check text-sky-600 text-base"></i> 10 Paling Rajin (Putra S1)`;
+        topBadge.className = 'text-[10px] bg-sky-100 text-sky-700 font-semibold px-2 py-0.5 rounded-full';
+        topHeader.className = 'p-4 border-b border-slate-100 bg-sky-50/50 flex justify-between items-center';
+
+        bottomTitle.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-600 text-base"></i> 10 Paling MALAS (Putra S1)`;
+        bottomBadge.className = 'text-[10px] bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full';
+        bottomHeader.className = 'p-4 border-b border-slate-100 bg-amber-50/50 flex justify-between items-center';
+
+        topList = [...putraNon2026].sort((a, b) => {
+          const diff = getTotal(b) - getTotal(a);
+          return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+        }).slice(0, 10);
+
+        bottomList = [...putraNon2026].sort((a, b) => {
+          const diff = getTotal(a) - getTotal(b);
+          return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+        }).slice(0, 10);
+
+      } else if (category === 'TOTAL_PUTRI') {
+        getValueFn = getTotal;
+
+        topTitle.innerHTML = `<i class="fa-solid fa-circle-check text-pink-600 text-base"></i> 10 Paling Rajin (Putri S1)`;
+        topBadge.className = 'text-[10px] bg-pink-100 text-pink-700 font-semibold px-2 py-0.5 rounded-full';
+        topHeader.className = 'p-4 border-b border-slate-100 bg-pink-50/50 flex justify-between items-center';
+
+        bottomTitle.innerHTML = `<i class="fa-solid fa-circle-exclamation text-rose-600 text-base"></i> 10 Paling MALAS (Putri S1)`;
+        bottomBadge.className = 'text-[10px] bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full';
+        bottomHeader.className = 'p-4 border-b border-slate-100 bg-rose-50/50 flex justify-between items-center';
+
+        topList = [...putriNon2026].sort((a, b) => {
+          const diff = getTotal(b) - getTotal(a);
+          return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+        }).slice(0, 10);
+
+        bottomList = [...putriNon2026].sort((a, b) => {
+          const diff = getTotal(a) - getTotal(b);
+          return diff !== 0 ? diff : getNIM(a).localeCompare(getNIM(b), undefined, { numeric: true });
+        }).slice(0, 10);
+      }
+
+      // Helper Render Item List
+      const renderList = (containerId, items, badgeClass, textClass) => {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
         if (items.length === 0) {
@@ -375,7 +401,6 @@
         }
         items.forEach((item, index) => {
           const val = getValueFn(item);
-
           container.innerHTML += `
             <div class="p-3 flex justify-between items-center hover:bg-slate-50">
               <div class="flex items-center gap-3">
@@ -387,22 +412,48 @@
                   <p class="text-[10px] text-slate-400 font-mono">${item['NIM'] || '-'} • ${item['ANGKATAN'] || '-'}</p>
                 </div>
               </div>
-              <span class="font-bold ${textColorClass} ${badgeColorClass} px-2.5 py-1 rounded-md border text-[11px]">${val} Kehadiran</span>
+              <span class="font-bold ${textClass} ${badgeClass} px-2.5 py-1 rounded-md border text-[11px]">${val} Kehadiran</span>
             </div>`;
         });
       };
 
-      // Output Render Seksi Subuh Jamaah Khusus Putra
-      renderList('top-10-subuh-putra', topSubuhPutra, getSubuh, 'bg-teal-50 border-teal-100', 'text-teal-600');
-      renderList('bottom-10-subuh-putra', bottomSubuhPutra, getSubuh, 'bg-rose-50 border-rose-100', 'text-rose-600');
-      
-      // Output Render Paling Rajin & Malas Putra (Total Semua Kegiatan)
-      renderList('rajin-putra-list', rajinPutra, getTotal, 'bg-sky-50 border-sky-100', 'text-sky-600');
-      renderList('malas-putra-list', malasPutra, getTotal, 'bg-amber-50 border-amber-100', 'text-amber-600');
+      const topBadgeClass = category === 'SUBUH_PUTRA' ? 'bg-teal-50 border-teal-100' : (category === 'TOTAL_PUTRA' ? 'bg-sky-50 border-sky-100' : 'bg-pink-50 border-pink-100');
+      const topTextClass = category === 'SUBUH_PUTRA' ? 'text-teal-600' : (category === 'TOTAL_PUTRA' ? 'text-sky-600' : 'text-pink-600');
 
-      // Output Render Paling Rajin & Malas Putri (Total Semua Kegiatan)
-      renderList('rajin-putri-list', rajinPutri, getTotal, 'bg-pink-50 border-pink-100', 'text-pink-600');
-      renderList('malas-putri-list', malasPutri, getTotal, 'bg-rose-50 border-rose-100', 'text-rose-600');
+      const bottomBadgeClass = category === 'SUBUH_PUTRA' ? 'bg-rose-50 border-rose-100' : (category === 'TOTAL_PUTRA' ? 'bg-amber-50 border-amber-100' : 'bg-rose-50 border-rose-100');
+      const bottomTextClass = category === 'SUBUH_PUTRA' ? 'text-rose-600' : (category === 'TOTAL_PUTRA' ? 'text-amber-600' : 'text-rose-600');
+
+      renderList('top-ranking-list', topList, topBadgeClass, topTextClass);
+      renderList('bottom-ranking-list', bottomList, bottomBadgeClass, bottomTextClass);
+    }
+
+    // Penanganan Login
+    function handleLogin(event) {
+      event.preventDefault();
+      const user = document.getElementById('login-username').value;
+      const pass = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+
+      // Kredensial Pengelola / Admin
+      if (user === 'admin' && pass === 'shabran123') {
+        isLoggedIn = true;
+        errorEl.classList.add('hidden');
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('table-controls').style.display = 'flex';
+        document.getElementById('table-container').style.display = 'block';
+        renderTable(datamasRaw);
+      } else {
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function handleLogout() {
+      isLoggedIn = false;
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-overlay').style.display = 'flex';
+      document.getElementById('table-controls').style.display = 'none';
+      document.getElementById('table-container').style.display = 'none';
     }
 
     function renderTable(data) {
@@ -413,7 +464,7 @@
       tbody.innerHTML = '';
 
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="100%" class="px-4 py-4 text-center text-slate-400">Tidak ada data ditemukan</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="100%" class="px-4 py-4 text-center text-slate-400">Data tidak ditemukan</td></tr>`;
         return;
       }
 
@@ -536,8 +587,9 @@
       });
     }
 
-    // Muat data manual saat halaman dibuka
+    // Load data awal & jalankan Sinkronisasi Otomatis setiap 5 menit (300.000 ms)
     loadDashboardData();
+    setInterval(loadDashboardData, 300000);
   </script>
 </body>
 </html>
