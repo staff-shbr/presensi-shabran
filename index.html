@@ -266,7 +266,7 @@
 
     function updateKPIs(data) {
       const total = data.length + 1;
-      const putraCount = data.filter(d => (d['AL JINSU'] || '').toLowerCase().includes('putra')).length;
+      const putraCount = data.filter(d => (d['AL JINSU'] || '').toLowerCase().includes('putra')).length + 1;
       const putriCount = data.filter(d => (d['AL JINSU'] || '').toLowerCase().includes('putri')).length;
 
       document.getElementById('stat-total').innerText = total;
