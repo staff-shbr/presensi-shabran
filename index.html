@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Presensi Terpadu Pondok Shabran - UMS | ver 1.0</title>
+    <title>Dashboard Presensi Terpadu Pondok Shabran - UMS | ver 1.1</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -150,18 +150,18 @@
             <div class="relative">
               <select id="sheet-filter" onchange="handleSheetChange()" class="bg-white border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg px-3 py-1.5 focus:ring-ums-navy focus:border-ums-navy shadow-sm cursor-pointer">
                 <option value="Semua" selected>Semua</option>
-                <option value="OKT26">OKT26</option>
-                <option value="NOV26">NOV26</option>
-                <option value="DES26">DES26</option>
-                <option value="JAN27">JAN27</option>
-                <option value="FEB27">FEB27</option>
-                <option value="MAR27">MAR27</option>
-                <option value="APR27">APR27</option>
-                <option value="MEI27">MEI27</option>
-                <option value="JUN27">JUN27</option>
-                <option value="JUL27">JUL27</option>
-                <option value="AGT27">AGT27</option>
-                <option value="SEP27">SEP27</option>
+                <option value="OKT26">Oktober 2026</option>
+                <option value="NOV26">November 2026</option>
+                <option value="DES26">Desember 2026</option>
+                <option value="JAN27">Januari 2027</option>
+                <option value="FEB27">Februari 2027</option>
+                <option value="MAR27">Maret 2027</option>
+                <option value="APR27">April 2027</option>
+                <option value="MEI27">Mei 2027</option>
+                <option value="JUN27">Juni 2027</option>
+                <option value="JUL27">Juli 2027</option>
+                <option value="AGT27">Agustus 2027</option>
+                <option value="SEP27">September 2027</option>
               </select>
             </div>
 
@@ -191,7 +191,7 @@
           </div>
           <div class="max-w-md">
             <h3 class="text-lg font-bold text-slate-800">Akses Terkunci</h3>
-            <p class="text-xs text-slate-500 mt-1">Silakan masuk dengan akun pengelola untuk melihat seluruh tabel Data Rekap Presensi Mahasantri.</p>
+            <p class="text-xs text-slate-500 mt-1">Silakan masuk dengan akun Pengelola Pondok (Pembina Asrama) untuk melihat tabel Data Rekap Presensi Mahasantri.</p>
           </div>
 
           <form onsubmit="handleLogin(event)" class="w-full max-w-xs space-y-3 mt-2">
@@ -210,7 +210,7 @@
           </form>
         </div>
 
-        <!-- Table Container (Akan Ditampilkan Setelah Login) -->
+        <!-- Table Container (Ditampilkan Setelah Login) -->
         <div id="table-container" class="overflow-x-auto" style="display: none">
           <table class="w-full text-left text-xs text-slate-700">
             <thead class="bg-ums-navy text-white uppercase font-semibold text-[11px] tracking-wider">
@@ -265,10 +265,10 @@
           }
 
           const now = new Date();
-          updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleTimeString("id-ID")} WIB`;
+          updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleDateTimeString("id-ID")} WIB`;
         } catch (err) {
           console.error("Gagal memuat data:", err);
-          updateEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-300 mr-1"></i> Akses Terblokir`;
+          updateEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-300 mr-1"></i> offline`;
         }
       }
 
@@ -282,7 +282,7 @@
         document.getElementById("stat-putri").innerText = putriCount;
       }
 
-      // Perhitungan total akumulasi presisi menggunakan daftar putih kolom kegiatan resmi
+      // Akumulasi
       function getTotalAttendance(row) {
         const activityColumns = ["SUBUH JAMAAH", "TAHAJJUD SENIN", "TAHAJJUD SELASA", "TAHAJJUD KAMIS", "TAHAJJUD JUMUAH", "EVALUASI PEKANAN I'DAD", "EVALUASI PEKANAN S1", "KAJIAN MASJID SYARIF"];
 
@@ -317,7 +317,7 @@
         let bottomList = [];
         let getValueFn = getSubuh;
 
-        // Konfigurasi Header & Style Kartu Peringkat
+        // Konfigurasi Header & Style Peringkat
         const topHeader = document.getElementById("top-card-header");
         const topTitle = document.getElementById("top-card-title");
         const topBadge = document.getElementById("top-card-badge");
@@ -436,7 +436,7 @@
         renderList("bottom-ranking-list", bottomList, bottomBadgeClass, bottomTextClass);
       }
 
-      // Penanganan Pengambilan Data Tabel Berdasarkan Sheet yang Dipilih
+      // Pengambilan Data Tabel Berdasarkan Sheet yang Dipilih
       async function handleSheetChange() {
         const sheetName = document.getElementById("sheet-filter").value;
         const tbody = document.getElementById("table-body");
@@ -459,7 +459,7 @@
           tbody.innerHTML = `
           <tr>
             <td colspan="100%" class="px-4 py-6 text-center text-rose-500 font-medium">
-              <i class="fa-solid fa-triangle-exclamation mr-1"></i> Sheet "${sheetName}" belum tersedia atau gagal dimuat.
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> Dokumen "${sheetName}" gagal dimuat.
             </td>
           </tr>`;
         }
@@ -623,7 +623,7 @@
         });
       }
 
-      // Load data awal & jalankan Sinkronisasi Otomatis setiap 5 menit (300.000 ms)
+      // Load data awal & jalanke Sinkronisasi Otomatis stiap 5 menit (=300.000 ms)
       loadDashboardData();
       setInterval(loadDashboardData, 300000);
     </script>
