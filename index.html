@@ -265,7 +265,7 @@
           }
 
           const now = new Date();
-          updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i>${now.toLocaleTimeString("id-ID")} WIB`;
+          updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleDateString("id-ID")} | ${now.toLocaleTimeString("id-ID")} WIB`;
         } catch (err) {
           console.error("Gagal memuat data:", err);
           updateEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-300 mr-1"></i> offline`;
