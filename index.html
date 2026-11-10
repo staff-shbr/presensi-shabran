@@ -265,7 +265,7 @@
           }
 
           const now = new Date();
-          updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleDateTimeString("id-ID")} WIB`;
+          updateEl.innerHTML = `<i class="fa-solid fa-check text-emerald-400 mr-1"></i> ${now.toLocaleDateString("id-ID")} | ${now.toLocaleTimeString("id-ID")} WIB`;
         } catch (err) {
           console.error("Gagal memuat data:", err);
           updateEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-300 mr-1"></i> offline`;
@@ -436,7 +436,7 @@
         renderList("bottom-ranking-list", bottomList, bottomBadgeClass, bottomTextClass);
       }
 
-      // Pengambilan Data Tabel Berdasarkan Sheet yang Dipilih
+      // Penanganan Pengambilan Data Tabel Berdasarkan Sheet yang Dipilih
       async function handleSheetChange() {
         const sheetName = document.getElementById("sheet-filter").value;
         const tbody = document.getElementById("table-body");
